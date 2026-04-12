@@ -17,17 +17,53 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommendation systems usually combine patterns from many users with details about the content itself. For this project, my version will stay simple and focus on content-based matching: it will compare each song against the user's stated taste preferences, reward songs that are close to the user's target energy, and give extra credit when the genre, mood, and acoustic style line up with what the user likes.
 
-Some prompts to answer:
+### Song features
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Each `Song` object uses these features:
 
-You can include a simple diagram or bullet list if helpful.
+- `id`
+- `title`
+- `artist`
+- `genre`
+- `mood`
+- `energy`
+- `tempo_bpm`
+- `valence`
+- `danceability`
+- `acousticness`
+
+### UserProfile features
+
+Each `UserProfile` object stores:
+
+- `favorite_genre`
+- `favorite_mood`
+- `target_energy`
+- `likes_acoustic`
+
+### Recommendation idea
+
+The `Recommender` will score each song by checking how well it matches the user's preferences, then sort the songs from highest score to lowest score. Songs that match the user's favorite genre and mood, stay close to the target energy, and fit the user's acoustic preference should rise to the top.
+
+### Algorithm Recipe
+
+My scoring rule will use these weights:
+
+- `+2.0` points for a genre match
+- `+1.5` points for a mood match
+- `+2.0` points for energy closeness
+- `+1.0` point for tempo closeness
+- `+0.75` points for valence closeness
+- `+0.75` points for danceability closeness
+- `+1.0` point for acousticness closeness when the user likes acoustic songs
+
+For numeric features, the score will reward values that are close to the user's target instead of only higher or lower values. That means a song with energy near the target energy will score better than one that is far away.
+
+### Expected Biases
+
+This system might over-prioritize genre and mood labels, which could cause it to miss songs that sound right but do not share the same category. It may also favor songs that are close to the target energy and acoustic style, even when a more diverse recommendation would be better.
 
 ---
 
@@ -63,6 +99,12 @@ pytest
 ```
 
 You can add more tests in `tests/test_recommender.py`.
+
+### Sample Terminal Output
+
+Running `python -m src.main` with the default `pop/happy` profile produces the recommendations below. The top result is `Sunrise City`, which matches the target genre, target mood, and target energy, so that ranking is what I would expect.
+
+![Terminal screenshot of recommendation output](assets/recommendations-terminal.png)
 
 ---
 
@@ -208,4 +250,3 @@ A few sentences about what you learned:
 - What surprised you about how your system behaved
 - How did building this change how you think about real music recommenders
 - Where do you think human judgment still matters, even if the model seems "smart"
-
